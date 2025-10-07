@@ -47,7 +47,7 @@ async function createLink(){
     uses:+document.getElementById("uses").value,
     expiresInSeconds:+document.getElementById("exp").value
   };
-  const res=await fetch("https://YOUR_VPS_OR_DOMAIN/api/generate",{
+  const res=await fetch("https://167.86.123.109/api/generate",{
     method:"POST",
     headers:{"Content-Type":"application/json","x-gen-secret":"changeme123"},
     body:JSON.stringify(body)
