@@ -1,61 +1,186 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Eclipse Tester</title>
+<title>Eclipse</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-body{font-family:sans-serif;padding:40px;}
-#login{display:none;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
-background:#fff;padding:20px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.2);}
+:root {
+  --primary: #00fff0;
+  --bg: #0a0a0f;
+  --accent: #ff00aa;
+  --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+body {
+  margin:0;
+  height:100vh;
+  background: radial-gradient(circle at top, #111 0%, #000 100%);
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:var(--font);
+  color:white;
+}
+
+/* floating particles */
+canvas#bg {
+  position:fixed;
+  top:0;left:0;width:100%;height:100%;
+  z-index:-1;
+}
+
+/* main text */
+.main {
+  text-align:center;
+  max-width:600px;
+  animation: fadeIn 3s ease;
+}
+h1 {
+  font-size:3rem;
+  color:var(--primary);
+  text-shadow:0 0 20px var(--primary);
+  letter-spacing:3px;
+}
+p {
+  font-size:1.1rem;
+  color:#aaa;
+  margin-top:1em;
+  animation: pulse 3s infinite alternate;
+}
+@keyframes fadeIn {
+  from{opacity:0;transform:translateY(40px);}
+  to{opacity:1;transform:translateY(0);}
+}
+@keyframes pulse {
+  from{opacity:0.6;}
+  to{opacity:1;}
+}
+
+/* login modal */
+#login {
+  display:none;
+  position:fixed;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(0.8);
+  background:rgba(20,20,30,0.9);
+  border:1px solid var(--primary);
+  box-shadow:0 0 30px var(--primary);
+  padding:30px;
+  border-radius:15px;
+  z-index:999;
+  text-align:center;
+  width:300px;
+  animation: popup 0.5s forwards;
+}
+@keyframes popup {
+  to{transform:translate(-50%,-50%) scale(1);}
+}
+#login input {
+  width:90%;
+  padding:10px;
+  margin:8px 0;
+  border:none;
+  border-radius:5px;
+  background:#111;
+  color:var(--primary);
+  outline:none;
+  text-align:center;
+}
+#login button {
+  background:var(--primary);
+  color:#000;
+  border:none;
+  padding:10px 20px;
+  border-radius:5px;
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.3s;
+}
+#login button:hover {
+  background:var(--accent);
+  color:white;
+}
+#msg {
+  color:#f55;
+  font-size:0.9rem;
+  margin-top:5px;
+}
 </style>
 </head>
 <body>
-<h1>Welcome</h1>
-<p>Type <b>accesgranted</b> anywhere to unlock login.</p>
+<canvas id="bg"></canvas>
+<div class="main">
+  <h1>Welcome to the Eclipse Testing Portal</h1>
+  <p>Exclusive access area for selected participants only.</p>
+</div>
 
 <div id="login">
-  <h3>Login</h3>
-  <input id="nick" placeholder="Nickname"><br><br>
-  <input id="pass" type="password" placeholder="Password"><br><br>
+  <h3 style="color:var(--primary)">Access Panel</h3>
+  <input id="nick" placeholder="Nickname"><br>
+  <input id="pass" type="password" placeholder="Password"><br>
   <button id="go">Login</button>
   <div id="msg"></div>
 </div>
 
 <script>
-const secret="accesgranted";let typed="";
-addEventListener("keydown",e=>{
-  if(e.key.length===1){typed+=e.key.toLowerCase();
-    if(typed.length>secret.length)typed=typed.slice(-secret.length);
-    if(typed===secret)document.getElementById("login").style.display="block";}
+// background particle animation
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+let w, h, particles=[];
+function resize(){w=canvas.width=innerWidth;h=canvas.height=innerHeight;}
+window.addEventListener('resize',resize);
+function Particle(){this.x=Math.random()*w;this.y=Math.random()*h;this.vx=(Math.random()-.5)*.6;this.vy=(Math.random()-.5)*.6;this.size=Math.random()*2;}
+Particle.prototype.update=function(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>w)this.vx*=-1;if(this.y<0||this.y>h)this.vy*=-1;}
+Particle.prototype.draw=function(){ctx.fillStyle='rgba(0,255,240,0.8)';ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fill();}
+for(let i=0;i<120;i++)particles.push(new Particle());
+function loop(){ctx.clearRect(0,0,w,h);particles.forEach(p=>{p.update();p.draw();});requestAnimationFrame(loop);}
+resize();loop();
+
+// secret access sequence
+const secret = "accesgranted";
+let buffer = "";
+window.addEventListener("keydown", e => {
+  if(e.key.length===1){
+    buffer += e.key.toLowerCase();
+    if(buffer.length>secret.length) buffer = buffer.slice(-secret.length);
+    if(buffer === secret){
+      document.getElementById('login').style.display='block';
+    }
+  }
 });
-document.getElementById("go").onclick=()=>{
-  const n=nick.value,p=pass.value;
-  if(n==="test"&&p==="test"){loginSuccess();}else msg.textContent="Wrong login";
+
+document.getElementById("go").onclick = () => {
+  const n = nick.value, p = pass.value;
+  if(n==="test" && p==="test") unlockAdmin();
+  else msg.textContent = "Wrong credentials";
 };
-function loginSuccess(){
-  login.innerHTML=`
-  <h3>Create Download Link</h3>
-  <input id='file' placeholder='Filename (in VPS /files)'><br><br>
-  <input id='uses' type='number' value='1' min='1'> uses<br><br>
-  <input id='exp' type='number' value='86400'> expire(sec)<br><br>
-  <button id='make'>Create</button><div id='out'></div>`;
-  document.getElementById("make").onclick=createLink;
+
+function unlockAdmin(){
+  document.getElementById("login").innerHTML = `
+  <h3 style="color:var(--primary)">Create Download Link</h3>
+  <input id='file' placeholder='Filename (in VPS /files)'><br>
+  <input id='uses' type='number' value='1' min='1'> uses<br>
+  <input id='exp' type='number' value='86400'> expire(sec)<br>
+  <button id='make'>Generate</button><div id='out'></div>`;
+  document.getElementById("make").onclick = createLink;
 }
+
 async function createLink(){
-  const body={
-    filename:document.getElementById("file").value,
-    uses:+document.getElementById("uses").value,
-    expiresInSeconds:+document.getElementById("exp").value
+  const body = {
+    filename: document.getElementById("file").value,
+    uses: +document.getElementById("uses").value,
+    expiresInSeconds: +document.getElementById("exp").value
   };
-  const res=await fetch("https://167.86.123.109/api/generate",{
+  const res = await fetch("https://167.86.123.109/api/generate", {
     method:"POST",
     headers:{"Content-Type":"application/json","x-gen-secret":"changeme123"},
-    body:JSON.stringify(body)
+    body: JSON.stringify(body)
   });
-  const data=await res.json();
-  document.getElementById("out").innerHTML=res.ok?
-    `<p><a href='${data.link}' target='_blank'>${data.link}</a></p>`:
-    JSON.stringify(data);
+  const data = await res.json();
+  document.getElementById("out").innerHTML = res.ok ?
+    `<p><a href='${data.link}' target='_blank'>${data.link}</a></p>` :
+    `<p style='color:red'>${data.error || "Error"}</p>`;
 }
 </script>
 </body>
