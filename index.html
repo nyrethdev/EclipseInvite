@@ -3,268 +3,211 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Eclipse V1 — Download</title>
+<title>Eclipse V1</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-  :root{
+  :root {
     --bg: #000;
     --fg: #fff;
-    --muted: #bbb;
+    --muted: #888;
     --accent: #fff;
   }
-  /* page */
-  html,body{height:100%;margin:0}
-  body{
-    background:var(--bg);
-    color:var(--fg);
-    font-family:'Roboto Mono', monospace;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:24px;
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Roboto Mono", monospace;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+    overflow-x: hidden;
   }
 
-  /* card */
-  .wrap{
-    width:min(880px,96vw);
-    max-width:920px;
-    display:grid;
-    grid-template-columns: 1fr 420px;
-    gap:28px;
-    align-items:start;
+  .container {
+    width: 100%;
+    max-width: 800px;
+    text-align: left;
   }
 
-  /* left: hero + terminal */
-  .hero{
-    padding:28px;
-    border-radius:10px;
-    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
-    border:1px solid rgba(255,255,255,0.04);
-  }
-  .title{
-    font-size:28px;
-    font-weight:600;
-    letter-spacing:-0.02em;
-    margin-bottom:6px;
-    color:var(--fg);
-  }
-  .subtitle{
-    color:var(--muted);
-    margin-bottom:18px;
-    font-size:13px;
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 6px;
   }
 
-  /* terminal area */
-  .terminal{
-    background:#000;
-    border-radius:8px;
-    padding:14px;
-    border:1px solid rgba(255,255,255,0.03);
-    box-shadow: 0 6px 30px rgba(0,0,0,0.6);
-    min-height:220px;
-    color:#cfd8dc;
-    font-size:13px;
-    line-height:1.35;
-    overflow:hidden;
-  }
-  .term-line{opacity:0.0; transform:translateY(6px); margin:6px 0}
-  .term-line.visible{opacity:1; transform:none; transition: all 360ms cubic-bezier(.2,.9,.3,1);}
-  .term-line .label{color:#9aa3a8; margin-right:8px}
-  .term-line .ok{ color:#9fe6a4 }
-  .term-line .proc{ color:#b7e3ff }
-
-  /* right: download module */
-  .download-panel{
-    padding:22px;
-    border-radius:10px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
-    border:1px solid rgba(255,255,255,0.04);
-    display:flex;
-    flex-direction:column;
-    gap:14px;
-    align-items:stretch;
-  }
-  .file-name{
-    font-size:14px;
-    color:var(--fg);
-    font-weight:600;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-  .file-meta{ color:var(--muted); font-size:12px; margin-top:4px }
-
-  .big-btn{
-    margin-top:18px;
-    padding:12px 14px;
-    border-radius:10px;
-    border:1px solid rgba(255,255,255,0.06);
-    background:transparent;
-    color:var(--fg);
-    font-weight:700;
-    cursor:pointer;
-    font-size:15px;
-    transition: transform .12s ease, box-shadow .12s ease, background .15s;
-  }
-  .big-btn:active{ transform:translateY(1px) }
-
-  .big-btn.primary{
-    background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-    box-shadow: 0 10px 30px rgba(255,255,255,0.03);
-  }
-  .big-btn.disabled{
-    opacity:0.45;
-    cursor:default;
+  .subtitle {
+    color: var(--muted);
+    margin-bottom: 16px;
+    font-size: 0.9rem;
   }
 
-  /* progress visuals */
-  .progress{
-    height:10px;
-    background: rgba(255,255,255,0.03);
-    border-radius:8px;
-    overflow:hidden;
-    margin-top:6px;
+  .terminal {
+    background: #050505;
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 14px;
+    border-radius: 8px;
+    height: 300px;
+    overflow-y: auto;
+    font-size: 13px;
+    line-height: 1.4;
   }
-  .progress .bar{
-    height:100%;
-    width:0%;
-    background: linear-gradient(90deg, #ffffff 0%, #e6e6e6 100%);
-    transition: width 400ms linear;
+
+  .line {
+    opacity: 0;
+    transform: translateY(6px);
+    transition: all 0.3s ease;
   }
-  .status-line{color:var(--muted); font-size:12px; margin-top:6px}
 
-  /* footer small */
-  .muted{ color:var(--muted); font-size:12px; margin-top:6px }
+  .line.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
 
-  /* mobile layout */
-  @media (max-width:920px){
-    .wrap{ grid-template-columns: 1fr; }
-    .download-panel{ order:2 }
+  .progress {
+    margin-top: 10px;
+    height: 10px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #fff, #aaa);
+    transition: width 0.2s linear;
+  }
+
+  .controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+  }
+
+  button {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--fg);
+    padding: 10px 18px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: 0.2s;
+  }
+
+  button:hover {
+    background: rgba(255,255,255,0.1);
+  }
+
+  button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .status {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: 8px;
   }
 </style>
 </head>
 <body>
-  <div class="wrap" role="main" aria-label="Eclipse V1 download">
-    <section class="hero" aria-hidden="false">
-      <div class="title">Eclipse V1</div>
-      <div class="subtitle">Roblox Admin Panel — secure distribution</div>
+  <div class="container">
+    <h1>Eclipse V1</h1>
+    <div class="subtitle">Roblox Admin Panel — Secure File Pipeline</div>
 
-      <div class="terminal" id="terminal" aria-live="polite">
-        <!-- lines get appended by JS -->
-      </div>
-      <div class="muted" style="margin-top:12px">System console — download pipeline</div>
-    </section>
+    <div class="terminal" id="terminal"></div>
 
-    <aside class="download-panel" aria-hidden="false">
-      <div>
-        <div class="file-name" id="fileName">EclipseV1.rbxm</div>
-        <div class="file-meta">Single-file package • .rbxm</div>
-      </div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <div class="status" id="status">Idle</div>
 
-      <div>
-        <button id="startBtn" class="big-btn primary" aria-controls="terminal">Download</button>
-        <div class="progress" aria-hidden="true"><div class="bar" id="progressBar"></div></div>
-        <div class="status-line" id="statusLine">Idle</div>
-      </div>
-
-      <div>
-        <button id="directBtn" class="big-btn disabled" aria-hidden="true">Direct Download</button>
-        <div class="muted">Direct download will enable once processing completes.</div>
-      </div>
-    </aside>
+    <div class="controls">
+      <button id="run">Initialize Download</button>
+      <button id="download" disabled>Direct Download</button>
+    </div>
   </div>
 
 <script>
-/*
-  Multi-stage download animation:
-   1) Start -> "Initializing"
-   2) Check file / compute fingerprint -> "Verifying"
-   3) Simulated processing (progress bar)
-   4) "Decrypting"/"Finalizing"
-   5) Ready -> enable direct download button
-  The actual download is a link to the repo file "EclipseV1.rbxm".
-*/
+const terminal = document.getElementById("terminal");
+const bar = document.getElementById("bar");
+const status = document.getElementById("status");
+const runBtn = document.getElementById("run");
+const dlBtn = document.getElementById("download");
 
-const term = document.getElementById('terminal');
-const startBtn = document.getElementById('startBtn');
-const directBtn = document.getElementById('directBtn');
-const progressBar = document.getElementById('progressBar');
-const statusLine = document.getElementById('statusLine');
-const fileName = document.getElementById('fileName').textContent.trim();
-const fileUrl = 'EclipseV1.rbxm'; // file must be in same repo
+const fileURL = "EclipseV1.rbxm";
+let running = false;
 
-// Helper: append terminal line with optional classes
-function pushLine(label, text, cls){
-  const el = document.createElement('div');
-  el.className = 'term-line';
-  el.innerHTML = `<span class="label">${label}</span><span class="${cls||''}">${text}</span>`;
-  term.appendChild(el);
-  // make visible with small delay for animation
-  requestAnimationFrame(()=> setTimeout(()=> el.classList.add('visible'), 40));
-  term.scrollTop = term.scrollHeight;
-  return el;
-}
-
-// simulate steps with controlled timing
-async function runSequence(){
-  startBtn.disabled = true;
-  startBtn.classList.add('disabled');
-  statusLine.textContent = 'Initializing...';
-  pushLine('[init]', 'Starting pipeline', 'proc');
-  await wait(600);
-
-  pushLine('[fs]', `Locating file: ${fileName}`, 'proc');
-  await wait(700);
-
-  // simulate file found
-  pushLine('[fs]', 'File found', 'ok');
-  statusLine.textContent = 'Verifying file integrity...';
-  await wait(600);
-
-  // fingerprinting lines
-  pushLine('[hash]', 'Computing fingerprint (SHA-256)', 'proc');
-  await wait(900);
-  pushLine('[hash]', 'Fingerprint OK: a3b7...9f4c', 'ok');
-  await wait(400);
-
-  // vulnerability check
-  pushLine('[scan]', 'Performing quick integrity scan', 'proc');
-  await wait(900);
-  pushLine('[scan]', 'No issues detected', 'ok');
-  await wait(350);
-
-  // processing stage with progress bar
-  pushLine('[proc]', 'Preparing package for download', 'proc');
-  statusLine.textContent = 'Processing...';
-  await animateProgress(0, 60, 900);   // to 60%
-  pushLine('[proc]', 'Compressing and optimizing', 'proc');
-  await animateProgress(60, 85, 1200); // to 85%
-  pushLine('[enc]', 'Finalizing (encryption metadata)', 'proc');
-  await animateProgress(85, 98, 800);  // to 98%
-
-  // finalize
-  pushLine('[final]', 'Finalizing', 'proc');
-  statusLine.textContent = 'Finalizing...';
-  await wait(700);
-
-  // small pause, then ready
-  pushLine('[ready]', 'Package ready', 'ok');
-  progressBar.style.width = '100%';
-  statusLine.textContent = 'Ready';
-  enableDownload();
-}
-
-// utility: wait ms
-function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
-
-// animate progress from a to b over time (ms)
-function animateProgress(a, b, duration){
+function logLine(text, delay = 50) {
   return new Promise(resolve => {
-    const start = performance.now();
-    function frame(now){
-      const t = Math.min(1, (now - start) / duration);
-      const value = a + (b - a) * t;
-      progressBar.style.width = value + '%';
+    const line = document.createElement("div");
+    line.className = "line";
+    terminal.appendChild(line);
+
+    let i = 0;
+    const interval = setInterval(() => {
+      line.textContent = text.slice(0, i);
+      i++;
+      if (i > text.length) {
+        clearInterval(interval);
+        line.classList.add("visible");
+        terminal.scrollTop = terminal.scrollHeight;
+        resolve();
+      }
+    }, delay / text.length);
+  });
+}
+
+async function runPipeline() {
+  if (running) return;
+  running = true;
+  runBtn.disabled = true;
+  dlBtn.disabled = true;
+  terminal.innerHTML = "";
+  bar.style.width = "0%";
+  status.textContent = "Initializing system...";
+  
+  await logLine("[SYS] Boot sequence initiated...");
+  await logLine("[SYS] Loading core modules...");
+  await logLine("[SYS] Environment verified.");
+  status.textContent = "Reading file metadata...";
+  await delay(700);
+  await logLine("[FS] Searching for file: EclipseV1.rbxm");
+  await delay(500);
+  await logLine("[FS] File located.");
+  await logLine("[HASH] Generating checksum (SHA-256)");
+
+  const hash = randomHash();
+  await logLine(`[HASH] Checksum: ${hash}`);
+  status.textContent = "Verifying integrity...";
+  await delay(600);
+  await logLine("[VERIFY] No corruption detected. Integrity OK.");
+
+  status.textContent = "Processing package...";
+  await simulateProgress(0, 70, 1200);
+
+  await logLine("[PROC] Applying encryption headers...");
+  await simulateProgress(70, 95, 1000);
+  await logLine("[PROC] Packaging complete.");
+
+  status.textContent = "Finalizing...";
+  await delay(700);
+  await logLine("[SYS] Operation complete.");
+  await simulateProgress(95, 100, 600);
+
+  status.textContent = "Ready";
+  dlBtn.disabled = false;
+  running = false;
+}
+
+function simulateProgress(start, end, duration) {
+  return new Promise(resolve => {
+    const startTime = performance.now();
+    function frame(now) {
+      const t = Math.min(1, (now - startTime) / duration);
+      const value = start + (end - start) * t;
+      bar.style.width = value + "%";
       if (t < 1) requestAnimationFrame(frame);
       else resolve();
     }
@@ -272,52 +215,24 @@ function animateProgress(a, b, duration){
   });
 }
 
-function enableDownload(){
-  directBtn.classList.remove('disabled');
-  directBtn.classList.add('primary');
-  directBtn.disabled = false;
-  directBtn.setAttribute('aria-hidden','false');
-
-  // replace behavior: direct download link
-  directBtn.onclick = () => {
-    // create hidden link to trigger download
-    const a = document.createElement('a');
-    a.href = fileUrl;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  };
-
-  // also allow clicking the big start button to immediately download
-  startBtn.textContent = 'Download Ready';
-  startBtn.disabled = false;
-  startBtn.classList.remove('disabled');
-  startBtn.onclick = () => {
-    const a = document.createElement('a');
-    a.href = fileUrl;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  };
+function delay(ms) {
+  return new Promise(r => setTimeout(r, ms));
 }
 
-// hook start click
-startBtn.addEventListener('click', async () => {
-  // clear terminal
-  term.innerHTML = '';
-  progressBar.style.width = '0%';
-  directBtn.classList.add('disabled');
-  directBtn.disabled = true;
-  statusLine.textContent = 'Queued';
-  await wait(120);
-  runSequence();
-});
+function randomHash() {
+  const chars = "abcdef0123456789";
+  let hash = "";
+  for (let i = 0; i < 64; i++) hash += chars[Math.floor(Math.random() * chars.length)];
+  return hash;
+}
 
-// initialize small welcome line
-pushLine('[sys]', 'Welcome. Click Download to begin.', 'proc');
-statusLine.textContent = 'Idle';
+runBtn.onclick = runPipeline;
+dlBtn.onclick = () => {
+  const a = document.createElement("a");
+  a.href = fileURL;
+  a.download = "EclipseV1.rbxm";
+  a.click();
+};
 </script>
 </body>
 </html>
