@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Eclipse Tester</title>
+<style>
+body{font-family:sans-serif;padding:40px;}
+#login{display:none;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+background:#fff;padding:20px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.2);}
+</style>
+</head>
+<body>
+<h1>Welcome</h1>
+<p>Type <b>accesgranted</b> anywhere to unlock login.</p>
+
+<div id="login">
+  <h3>Login</h3>
+  <input id="nick" placeholder="Nickname"><br><br>
+  <input id="pass" type="password" placeholder="Password"><br><br>
+  <button id="go">Login</button>
+  <div id="msg"></div>
+</div>
+
+<script>
+const secret="accesgranted";let typed="";
+addEventListener("keydown",e=>{
+  if(e.key.length===1){typed+=e.key.toLowerCase();
+    if(typed.length>secret.length)typed=typed.slice(-secret.length);
+    if(typed===secret)document.getElementById("login").style.display="block";}
+});
+document.getElementById("go").onclick=()=>{
+  const n=nick.value,p=pass.value;
+  if(n==="test"&&p==="test"){loginSuccess();}else msg.textContent="Wrong login";
+};
+function loginSuccess(){
+  login.innerHTML=`
+  <h3>Create Download Link</h3>
+  <input id='file' placeholder='Filename (in VPS /files)'><br><br>
+  <input id='uses' type='number' value='1' min='1'> uses<br><br>
+  <input id='exp' type='number' value='86400'> expire(sec)<br><br>
+  <button id='make'>Create</button><div id='out'></div>`;
+  document.getElementById("make").onclick=createLink;
+}
+async function createLink(){
+  const body={
+    filename:document.getElementById("file").value,
+    uses:+document.getElementById("uses").value,
+    expiresInSeconds:+document.getElementById("exp").value
+  };
+  const res=await fetch("https://YOUR_VPS_OR_DOMAIN/api/generate",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","x-gen-secret":"changeme123"},
+    body:JSON.stringify(body)
+  });
+  const data=await res.json();
+  document.getElementById("out").innerHTML=res.ok?
+    `<p><a href='${data.link}' target='_blank'>${data.link}</a></p>`:
+    JSON.stringify(data);
+}
+</script>
+</body>
+</html>
